@@ -1,0 +1,50 @@
+import streamlit as st
+import pandas as pd
+import mysql.connector
+# MySQL connection
+db = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="root",
+    database="job_predication"
+)
+
+# Load data
+query = "SELECT * FROM job_predication_3"
+df = pd.read_sql(query, con=db)
+
+
+st.title("💼 Job Placement Dashboard")
+st.header("📊 Key KPIs")
+
+total_candidates = len(df)
+placement_rate = (df['status'].sum() / total_candidates) * 100
+job_acceptance_rate = placement_rate
+avg_interview_score = df['interview performance'].mean()
+avg_skills_match = df['skills_match_percentage'].mean()
+offer_dropout_rate = 0  # or calculate if you have a column
+high_risk = df[(df['skills_match_percentage']<50) & (df['interview performance']<50)]
+high_risk_percentage = (len(high_risk) / total_candidates) * 100
+
+
+st.subheader("Total Candidates")
+st.metric("Total Candidates", total_candidates)
+
+st.subheader("Placement Rate")
+st.metric("Placement Rate (%)", f"{placement_rate:.2f}%")
+
+st.subheader("Job Acceptance Rate")
+st.metric("Job Acceptance Rate (%)", f"{job_acceptance_rate:.2f}%")
+
+st.subheader("Average Interview Score")
+st.metric("Avg Interview Score", f"{avg_interview_score:.2f}")
+
+st.subheader("Average Skills Match")
+st.metric("Avg Skills Match (%)", f"{avg_skills_match:.2f}%")
+
+st.subheader("Offer Dropout Rate")
+st.metric("Offer Dropout Rate (%)", f"{offer_dropout_rate:.2f}%")
+
+st.subheader("High-Risk Candidate Percentage")
+st.metric("High-Risk Candidates (%)", f"{high_risk_percentage:.2f}%")
+
